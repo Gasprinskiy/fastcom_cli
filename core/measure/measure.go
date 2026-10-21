@@ -214,10 +214,6 @@ func (sm *SpeedMeasure) tryMesure(ctx context.Context) {
 				sm.allMeasuresCount += 1
 				sm.allMeasures += sm.currentSpeed
 				sm.avgSpeed = sm.allMeasures / float64(sm.allMeasuresCount)
-
-				// fmt.Printf("CUR: %.1f\n", sm.currentSpeed)
-				// fmt.Printf("AVG: %.1f\n", sm.avgSpeed)
-				// fmt.Println("---------------------------")
 			}
 
 		}
@@ -225,7 +221,6 @@ func (sm *SpeedMeasure) tryMesure(ctx context.Context) {
 }
 
 func (sm *SpeedMeasure) onEof() {
-	fmt.Println("EOF")
 	sm.adtIndex += 1
 	if sm.adtIndex >= len(sm.targets)-1 {
 		sm.adtIndex += 1

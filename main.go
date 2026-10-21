@@ -37,12 +37,15 @@ func main() {
 		BUFFER_SIZE,
 		TICK,
 	)
-
-	go m.Run(ctxT)
-
-	vm := view.NewViewModel(m.GetCurrentSpeed, m.GetAVGSpeed, TICK)
+	vm := view.NewViewModel(
+		m.GetCurrentSpeed,
+		m.GetAVGSpeed,
+		TICK,
+	)
 
 	p := tea.NewProgram(vm, tea.WithContext(ctxT))
+
+	go m.Run(ctxT)
 	if _, err := p.Run(); err != nil && !errors.Is(err, tea.ErrProgramKilled) {
 		log.Fatal(err)
 	}
