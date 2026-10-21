@@ -2,8 +2,16 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fastcom_cli/core/measure"
+	"fastcom_cli/core/view"
+	"log"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
+
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 const (
@@ -11,19 +19,31 @@ const (
 	TOKEN       = "YXNkZmFzZGxmbnNkYWZoYXNkZmhrYWxm"
 	URL_COUNT   = 5
 	BUFFER_SIZE = 10
-	TIMEOUT     = 20 * time.Second
+	TIMEOUT     = 30 * time.Second
 	TICK        = 200 * time.Millisecond
 )
 
 func main() {
-	ctx, cancel := context.WithTimeout(context.Background(), TIMEOUT)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	ctxT, cancel := context.WithTimeout(ctx, TIMEOUT)
 	defer cancel()
 
-	measure.NewSpeedMeasure(
+	m := measure.NewSpeedMeasure(
 		API_URL,
 		TOKEN,
 		URL_COUNT,
 		BUFFER_SIZE,
 		TICK,
-	).Run(ctx)
+	)
+
+	go m.Run(ctxT)
+
+	vm := view.NewViewModel(m.GetCurrentSpeed, m.GetAVGSpeed, TICK)
+
+	p := tea.NewProgram(vm, tea.WithContext(ctxT))
+	if _, err := p.Run(); err != nil && !errors.Is(err, tea.ErrProgramKilled) {
+		log.Fatal(err)
+	}
 }

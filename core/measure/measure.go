@@ -71,6 +71,14 @@ func (sm *SpeedMeasure) Run(ctx context.Context) {
 	close(sm.jobs)
 }
 
+func (sm *SpeedMeasure) GetCurrentSpeed() float64 {
+	return sm.currentSpeed
+}
+
+func (sm *SpeedMeasure) GetAVGSpeed() float64 {
+	return sm.avgSpeed
+}
+
 func (sm *SpeedMeasure) findTargets(ctx context.Context) ([]string, error) {
 	type re_s struct {
 		Targets []struct {
@@ -207,9 +215,9 @@ func (sm *SpeedMeasure) tryMesure(ctx context.Context) {
 				sm.allMeasures += sm.currentSpeed
 				sm.avgSpeed = sm.allMeasures / float64(sm.allMeasuresCount)
 
-				fmt.Printf("CUR: %.1f\n", sm.currentSpeed)
-				fmt.Printf("AVG: %.1f\n", sm.avgSpeed)
-				fmt.Println("---------------------------")
+				// fmt.Printf("CUR: %.1f\n", sm.currentSpeed)
+				// fmt.Printf("AVG: %.1f\n", sm.avgSpeed)
+				// fmt.Println("---------------------------")
 			}
 
 		}
