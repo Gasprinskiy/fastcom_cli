@@ -19,8 +19,8 @@ go version
 ### Build
 
 ```bash
-git clone https://github.com/<your-username>/<repo-name>.git
-cd <repo-name>
+git clone https://github.com/Gasprinskiy/fastcom_cli.git
+cd fastcom_cli
 go build -o fastcom_cli
 ```
 
@@ -44,4 +44,4 @@ or, if you installed it into your `PATH`:
 fastcom_cli
 ```
 
-The application shows the current (`CUR`) and average (`AVG`) download speed, updating in place.
+The application shows the current and average download speed.
