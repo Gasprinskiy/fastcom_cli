@@ -223,7 +223,7 @@ func (sm *SpeedMeasure) tryMesure(ctx context.Context) {
 func (sm *SpeedMeasure) onEof() {
 	sm.adtIndex += 1
 	if sm.adtIndex >= len(sm.targets)-1 {
-		sm.adtIndex += 1
+		sm.adtIndex = 0
 	}
 	sm.jobs <- sm.targets[sm.adtIndex]
 }
