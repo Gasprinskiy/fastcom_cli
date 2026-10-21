@@ -74,7 +74,7 @@ func (m *ViewModel) View() string {
 	s := fmt.Sprintf("\n%s\n\n%s %s %s\n%s %s %s\n\n",
 		headStyle.Render("Internet speed test"),
 		labelStyle.Render("Current:"), valueStyle.Render(fmt.Sprintf("%.2f", m.cur)), speedStyle.Render("Mbit/s"),
-		labelStyle.Render("Avarage:"), valueStyle.Render(fmt.Sprintf("%.2f", m.avg)), speedStyle.Render("Mbit/s"),
+		labelStyle.Render("Average:"), valueStyle.Render(fmt.Sprintf("%.2f", m.avg)), speedStyle.Render("Mbit/s"),
 	)
 	return s
 }
