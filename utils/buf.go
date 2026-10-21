@@ -1,4 +1,4 @@
-package main
+package utils
 
 type FixedByteBuf struct {
 	Index int8
