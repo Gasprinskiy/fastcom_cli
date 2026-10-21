@@ -47,10 +47,8 @@ func NewSpeedMeasure(
 		token:        token,
 		targetsCount: targetsCount,
 		tick:         tick,
+		httpClient:   http.DefaultClient,
 		//
-		httpClient: &http.Client{
-			Transport: http.DefaultTransport,
-		},
 		buf:      utils.NewFixedByteBuf(bufSize),
 		adtIndex: -1,
 	}
@@ -62,6 +60,14 @@ func (sm *SpeedMeasure) Run(ctx context.Context) {
 		log.Panic(err)
 	}
 	sm.targets = targets
+
+	sm.httpClient = &http.Client{
+		Transport: &http.Transport{
+			MaxIdleConns:        len(targets),
+			MaxIdleConnsPerHost: len(targets),
+			IdleConnTimeout:     90 * time.Second,
+		},
+	}
 
 	sm.runWorkers(ctx)
 
@@ -126,7 +132,9 @@ func (sm *SpeedMeasure) findTargets(ctx context.Context) ([]string, error) {
 	res := make([]string, 0, len(dest.Targets))
 
 	for _, row := range dest.Targets {
-		res = append(res, row.Name)
+		u, _ := url.Parse(row.Name)
+		u.Path += "/range/0-26214400"
+		res = append(res, u.String())
 	}
 
 	return res, nil
@@ -156,7 +164,7 @@ func (sm *SpeedMeasure) downloadWorker(ctx context.Context) {
 
 		case j, ok := <-sm.jobs:
 			if !ok {
-				return
+				continue
 			}
 
 			req, err := http.NewRequestWithContext(ctx, "GET", j, nil)
@@ -168,13 +176,14 @@ func (sm *SpeedMeasure) downloadWorker(ctx context.Context) {
 			if err != nil {
 				continue
 			}
-			defer response.Body.Close()
 
 			_, err = io.Copy(io.Discard, &utils.Reader{
+				Target: j,
 				R:      response.Body,
 				OnEof:  sm.onEof,
 				OnRead: sm.onRead,
 			})
+			response.Body.Close()
 			if err != nil {
 				continue
 			}
@@ -220,12 +229,8 @@ func (sm *SpeedMeasure) tryMesure(ctx context.Context) {
 	}()
 }
 
-func (sm *SpeedMeasure) onEof() {
-	sm.adtIndex += 1
-	if sm.adtIndex >= len(sm.targets)-1 {
-		sm.adtIndex = 0
-	}
-	sm.jobs <- sm.targets[sm.adtIndex]
+func (sm *SpeedMeasure) onEof(url string) {
+	sm.jobs <- url
 }
 
 func (sm *SpeedMeasure) onRead(n int) {
