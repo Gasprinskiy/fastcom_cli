@@ -44,4 +44,13 @@ or, if you installed it into your `PATH`:
 fastcom_cli
 ```
 
+## Flags
+
+Also you can add additional flags
+
+|   Flag   |   Type   | Default | Example | 
+| -------- | -------  | ------- | ------- |
+|   -d     | duration |   30s   | -d 10s  |
+
+
 The application shows the current and average download speed.
