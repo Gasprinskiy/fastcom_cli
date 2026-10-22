@@ -47,7 +47,13 @@ func NewSpeedMeasure(
 		token:        token,
 		targetsCount: targetsCount,
 		tick:         tick,
-		httpClient:   http.DefaultClient,
+		httpClient: &http.Client{
+			Transport: &http.Transport{
+				MaxIdleConns:        int(targetsCount),
+				MaxIdleConnsPerHost: int(targetsCount),
+				IdleConnTimeout:     90 * time.Second,
+			},
+		},
 		//
 		buf:      utils.NewFixedByteBuf(bufSize),
 		adtIndex: -1,
@@ -61,17 +67,9 @@ func (sm *SpeedMeasure) Run(ctx context.Context) {
 	}
 	sm.targets = targets
 
-	sm.httpClient = &http.Client{
-		Transport: &http.Transport{
-			MaxIdleConns:        len(targets),
-			MaxIdleConnsPerHost: len(targets),
-			IdleConnTimeout:     90 * time.Second,
-		},
-	}
-
 	sm.runWorkers(ctx)
 
-	sm.tryMesure(ctx)
+	sm.runTickMeasure(ctx)
 
 	sm.wg.Wait()
 	close(sm.jobs)
@@ -141,10 +139,11 @@ func (sm *SpeedMeasure) findTargets(ctx context.Context) ([]string, error) {
 }
 
 func (sm *SpeedMeasure) runWorkers(ctx context.Context) {
-	workersCount := len(sm.targets)
-	sm.jobs = make(chan string, len(sm.targets))
+	var i uint8
 
-	for i := 0; i < workersCount; i++ {
+	sm.jobs = make(chan string, sm.targetsCount)
+
+	for ; i < sm.targetsCount; i++ {
 		sm.wg.Add(1)
 		go sm.downloadWorker(ctx)
 	}
@@ -191,7 +190,7 @@ func (sm *SpeedMeasure) downloadWorker(ctx context.Context) {
 	}
 }
 
-func (sm *SpeedMeasure) tryMesure(ctx context.Context) {
+func (sm *SpeedMeasure) runTickMeasure(ctx context.Context) {
 	sm.wg.Add(1)
 	go func() {
 		defer sm.wg.Done()
