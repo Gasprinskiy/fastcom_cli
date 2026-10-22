@@ -18,8 +18,8 @@ import (
 const (
 	API_URL     = "https://api.fast.com/netflix/speedtest/v2"
 	TOKEN       = "YXNkZmFzZGxmbnNkYWZoYXNkZmhrYWxm"
-	URL_COUNT   = 10
-	BUFFER_SIZE = 10
+	URL_COUNT   = 6
+	BUFFER_SIZE = 12
 	DURATION    = 30 * time.Second
 	TICK        = 200 * time.Millisecond
 )
