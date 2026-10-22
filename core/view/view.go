@@ -9,7 +9,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-var bounds = []float64{0, 5, 10, 50, 100, 500, 750, 1000}
+var bounds = []float64{0, 10, 50, 100, 500, 1000}
 
 var (
 	headStyle          = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#dff0a3b9"))
@@ -104,7 +104,7 @@ func (m *ViewModel) level(n float64) int {
 }
 
 func (m *ViewModel) View() string {
-	s := fmt.Sprintf("\n%s\n\n%s %s %s \n%s\n%s %s %s\n%s\n\n",
+	s := fmt.Sprintf("\n%s\n\n%s %s %s \n%s\n\n%s %s %s\n%s\n\n",
 		headStyle.Render("Internet speed test"),
 
 		labelStyle.Render("Current:"),
