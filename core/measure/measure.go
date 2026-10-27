@@ -29,10 +29,11 @@ type SpeedMeasure struct {
 	targets     []string
 	jobs        chan string
 	//
-	allMeasuresCount int
-	allMeasures      float64
-	currentSpeed     float64
-	avgSpeed         float64
+	allMeasuresCount  int
+	allMeasures       float64
+	currentSpeed      float64
+	avgSpeed          float64
+	totalDownloadSize float64
 }
 
 func NewSpeedMeasure(
@@ -81,6 +82,10 @@ func (sm *SpeedMeasure) GetCurrentSpeed() float64 {
 
 func (sm *SpeedMeasure) GetAVGSpeed() float64 {
 	return sm.avgSpeed
+}
+
+func (sm *SpeedMeasure) GetTotalDownloadSize() float64 {
+	return sm.totalDownloadSize
 }
 
 func (sm *SpeedMeasure) findTargets(ctx context.Context) ([]string, error) {
@@ -210,6 +215,7 @@ func (sm *SpeedMeasure) runTickMeasure(ctx context.Context) {
 				elapsed := now.Sub(last).Seconds()
 				last = now
 
+				sm.totalDownloadSize += float64(size) / 1_000_000
 				sm.buf.Add((float64(size) * 8 / elapsed) / 1_000_000)
 
 				var sum float64

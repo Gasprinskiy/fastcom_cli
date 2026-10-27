@@ -47,24 +47,27 @@ func (s speedDivision) View(n int) string {
 type tickMsg struct{}
 
 type ViewModel struct {
-	getCur func() float64
-	getAvg func() float64
-	tickD  time.Duration
+	getCur    func() float64
+	getAvg    func() float64
+	getTotalD func() float64
+	tickD     time.Duration
 	//
 	avg    float64
 	cur    float64
+	total  float64
 	width  int
 	height int
 }
 
 func NewViewModel(
-	getCurr, getAvg func() float64,
+	getCurr, getAvg, getTotalD func() float64,
 	tickD time.Duration,
 ) *ViewModel {
 	return &ViewModel{
-		getCur: getCurr,
-		getAvg: getAvg,
-		tickD:  tickD,
+		getCur:    getCurr,
+		getAvg:    getAvg,
+		getTotalD: getTotalD,
+		tickD:     tickD,
 	}
 }
 
@@ -86,6 +89,7 @@ func (m *ViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tickMsg:
 		m.cur = m.getCur()
 		m.avg = m.getAvg()
+		m.total = m.getTotalD()
 
 		return m, m.tick()
 
@@ -104,7 +108,7 @@ func (m *ViewModel) level(n float64) int {
 }
 
 func (m *ViewModel) View() string {
-	s := fmt.Sprintf("\n%s\n\n%s %s %s \n%s\n\n%s %s %s\n%s\n\n",
+	s := fmt.Sprintf("\n%s\n\n%s %s %s \n%s\n\n%s %s %s\n%s\n\n%s %s %s\n\n",
 		headStyle.Render("Internet speed test"),
 
 		labelStyle.Render("Current:"),
@@ -116,6 +120,10 @@ func (m *ViewModel) View() string {
 		valueStyle.Render(fmt.Sprintf("%.3f", m.avg)),
 		speedStyle.Render("Mbit/s"),
 		speedDivisionStyle.Render(speed_divisions_view.View(m.level(m.avg))),
+
+		labelStyle.Render("Total size:"),
+		valueStyle.Render(fmt.Sprintf("%.2f", m.total)),
+		speedStyle.Render("MB"),
 	)
 	return s
 }

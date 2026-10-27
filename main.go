@@ -48,6 +48,7 @@ func main() {
 	vm := view.NewViewModel(
 		m.GetCurrentSpeed,
 		m.GetAVGSpeed,
+		m.GetTotalDownloadSize,
 		TICK+10,
 	)
 
